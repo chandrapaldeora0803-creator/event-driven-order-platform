@@ -1,0 +1,48 @@
+spring:
+  application:
+    name: order-platform
+
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/orders}
+    username: ${DB_USER:orders}
+    password: ${DB_PASSWORD:orders}
+
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate   # schema is owned by Flyway, Hibernate only checks it
+
+  flyway:
+    enabled: true
+
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+
+  cache:
+    type: redis
+
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP:localhost:9092}
+    producer:
+      acks: all
+      properties:
+        enable.idempotence: true
+    consumer:
+      group-id: order-processor
+      auto-offset-reset: earliest
+
+app:
+  kafka:
+    topic: orders.events
+  outbox:
+    poll-ms: 1000
+  risk:
+    auto-approve-limit: 10000
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
